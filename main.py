@@ -19,15 +19,13 @@ def to_sop_form(terms, variables):
 	return "+".join(terms_str) if terms else '0'
 	
 def args_val(vars):
-	return sum([2**i * p.get_value() for i, p in enumerate(vars)])
+	return sum(2**i * p.get_value() for i, p in enumerate(vars))
 
 def _sort(vars):
 	vars.sort(key=lambda x: ord(str(x)))
-	i = 0
 	if len(vars) != 2:
-		while i < len(vars)-1:
+		for i in range(0, len(vars)-1, 2):
 			vars[i], vars[i+1] = vars[i+1], vars[i]
-			i += 2
 	return vars
 
 def get_func(string):
