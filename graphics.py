@@ -20,7 +20,7 @@ def rainbow_text(x,y,ls,lc,**kw):
 
 def _decode(tuple):
 	value = [0, 1, 2]
-	return sum([3**i * value[v] for i, v in enumerate(tuple)])
+	return sum(3**i * value[v] for i, v in enumerate(tuple))
 
 def _get_coord(list, margin):
 	map = [((0, 1),), ((1, 1),), ((0, 2),), ((3, 1),), ((2, 1),), ((2, 2),), ((3, 1), (0, 1)), ((1, 2),), ((0, 4),)]
@@ -42,15 +42,12 @@ def _draw_square(square, dim, margins, color, width):
 		plt.gca().add_patch(Rectangle((x[0], nrow - y[0] - y[1]), x[1], y[1], edgecolor=color, facecolor=color+'30'))
 
 def create_labels(x, y):
-	if x == None and y == None:
+	if x is None and y is None:
 		return []
-	elif y == None:
+	elif y is None:
 		return [str(x) + "'", str(x)]
 	else:
-		labels = []
-		for f in ["{}'{}'", "{}'{}", "{}{}", "{}{}'"]:
-			labels.append(f.format(str(y), str(x)))
-		return labels
+		return [f.format(str(y), str(x)) for f in ["{}'{}'", "{}'{}", "{}{}", "{}{}'"]]
 
 def _at(vector, i):
 	if i < len(vector):
@@ -61,39 +58,37 @@ def draw_table(ones, squares, variables):
 	plt.clf()
 	plt.axis('off')
 	vars_num = len(variables)
-	if vars_num < 5:
-		
-		colors = ['#A00000', '#00A000', '#0000A0', '#80FF80', '#FF00FF', '#FF8080', '#A0A000', '#202020', '#602080', "#800000"]
-
-		nrow, ncol = dim_map[vars_num]
-		rainbow_text(0, -0.125*nrow, to_sop_form(squares, variables).split('+'), colors, size=25)
-
-		table = np.array(['1' if table_map(vars_num)[i] in ones else '0' for i in range(2**vars_num)]).reshape(dim_map[vars_num])
-
-		dim = (vars_num//2, vars_num//2 + vars_num%2)
-		c, r = variables[:dim[1]], variables[dim[1]:]
-		
-		col_labels = create_labels(_at(c, 0), _at(c, 1))
-		row_labels = create_labels(_at(r, 0), _at(r, 1))
-
-		plt.plot(np.tile([0, ncol], (nrow+1,1)).T, np.tile(np.arange(nrow+1), (2,1)), 'k', linewidth=3)
-		plt.plot(np.tile(np.arange(0, ncol+1), (2,1)), np.tile([0, nrow], (ncol+1,1)).T, 'k', linewidth=3)
-		
-		for icol, col in enumerate(col_labels):
-			plt.text(icol + 0.5, nrow+ 0.15, col, ha='center', va='center')
-		for irow, row in enumerate(row_labels):
-			plt.text(-0.15, nrow - irow - 0.5, row, ha='center', va='center')
-	
-		for irow, row in enumerate(table):
-		    for icol, cell in enumerate(row):
-		        plt.text(icol + 0.5, nrow - irow - 0.5, cell, ha='center', va='center')
-
-		mg = margins_generator()
-		for i, square in enumerate(squares):
-			_draw_square(square, dim, next(mg), colors[i], 3)
-
-	else:
+	if vars_num >= 5:
 		raise ValueError('Number of variables > 4')
+
+	colors = ['#A00000', '#00A000', '#0000A0', '#80FF80', '#FF00FF', '#FF8080', '#A0A000', '#202020', '#602080', "#800000"]
+
+	nrow, ncol = dim_map[vars_num]
+	rainbow_text(0, -0.125*nrow, to_sop_form(squares, variables).split('+'), colors, size=25)
+
+	table = np.array(['1' if table_map(vars_num)[i] in ones else '0' for i in range(2**vars_num)]).reshape(dim_map[vars_num])
+
+	dim = (vars_num//2, vars_num//2 + vars_num%2)
+	c, r = variables[:dim[1]], variables[dim[1]:]
+
+	col_labels = create_labels(_at(c, 0), _at(c, 1))
+	row_labels = create_labels(_at(r, 0), _at(r, 1))
+
+	plt.plot(np.tile([0, ncol], (nrow+1,1)).T, np.tile(np.arange(nrow+1), (2,1)), 'k', linewidth=3)
+	plt.plot(np.tile(np.arange(0, ncol+1), (2,1)), np.tile([0, nrow], (ncol+1,1)).T, 'k', linewidth=3)
+
+	for icol, col in enumerate(col_labels):
+		plt.text(icol + 0.5, nrow+ 0.15, col, ha='center', va='center')
+	for irow, row in enumerate(row_labels):
+		plt.text(-0.15, nrow - irow - 0.5, row, ha='center', va='center')
+
+	for irow, row in enumerate(table):
+	    for icol, cell in enumerate(row):
+	        plt.text(icol + 0.5, nrow - irow - 0.5, cell, ha='center', va='center')
+
+	mg = margins_generator()
+	for i, square in enumerate(squares):
+		_draw_square(square, dim, next(mg), colors[i], 3)
 
 	plt.show()
 	plt.pause(0.0001)
